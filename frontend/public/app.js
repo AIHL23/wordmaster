@@ -7,6 +7,9 @@ let currentEditingWordId = null;
 let selectedSentenceLanguage = 'turkish';
 let selectedSentencePoints = 5;
 
+// 🔥 BACKEND URL'İ - RENDER DOMAIN İLE DEĞİŞTİR
+const API_BASE_URL = 'https://wordmaster-2.onrender.com';
+
 // Sayfa geçiş fonksiyonları
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => {
@@ -21,23 +24,15 @@ function initLanguageSelection() {
     
     langOptions.forEach(option => {
         option.addEventListener('click', function() {
-            // Aktif sınıfını kaldır
-            langOptions.forEach(opt => {
-                opt.classList.remove('active');
-            });
-            
-            // Tıklanana aktif sınıfı ekle
+            langOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             
-            // Seçilen dili ve puanı güncelle
             selectedSentenceLanguage = this.dataset.lang;
             selectedSentencePoints = parseInt(this.dataset.points);
             
-            // Görsel güncellemeler
             document.getElementById('sentencePoints').textContent = selectedSentencePoints;
             document.getElementById('selectedPoints').textContent = selectedSentencePoints;
             
-            // Dil adını güncelle
             const langNames = {
                 'turkish': 'Türkçe',
                 'english': 'İngilizce', 
@@ -58,33 +53,27 @@ function openSentenceModal(wordId) {
         document.getElementById('sentenceInput').value = word.sentence || '';
         document.getElementById('sentenceMessage').innerHTML = '';
         
-        // Dil seçimini sıfırla (her açılışta Türkçe)
         selectedSentenceLanguage = 'turkish';
         selectedSentencePoints = 5;
         
-        // Aktif butonu sıfırla
         document.querySelectorAll('.lang-option').forEach(opt => opt.classList.remove('active'));
         document.querySelector('.lang-option[data-lang="turkish"]').classList.add('active');
         
-        // Puan bilgisini güncelle
         document.getElementById('sentencePoints').textContent = '5';
         document.getElementById('selectedPoints').textContent = '5';
         document.getElementById('selectedLangName').textContent = 'Türkçe';
         
-        // Cümle onay durumuna göre mesaj göster
         if (word.sentence && word.sentenceStatus === 'pending') {
             document.getElementById('sentenceMessage').innerHTML = 
                 '<div class="message warning">⏳ Cümleniz onay bekliyor</div>';
         }
         
         document.getElementById('sentenceModal').classList.add('active');
-        
-        // Dil seçimini başlat
         setTimeout(initLanguageSelection, 100);
     }
 }
 
-// ADMIN PANELİ FONKSİYONLARI - GERÇEK BACKEND BAĞLANTILI
+// ADMIN PANELİ FONKSİYONLARI
 function showAdminPage() {
     if (currentUser && currentUser.role === 'admin') {
         showPage('adminPage');
@@ -95,29 +84,22 @@ function showAdminPage() {
 }
 
 function showAdminTab(tabName) {
-    // Tab butonlarını güncelle
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Tab içeriklerini güncelle
-    document.querySelectorAll('.admin-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
+    document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById('admin' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Tab').classList.add('active');
 }
 
 async function loadAdminData() {
-    // Admin verilerini backend'den yükle
     await loadPendingWords();
     await loadPendingSentences();
 }
 
-// GERÇEK: Backend'den onay bekleyen kelimeleri çek
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function loadPendingWords() {
     try {
-        const response = await fetch('http://localhost:5000/api/admin/pending-words');
+        const response = await fetch(`${API_BASE_URL}/api/admin/pending-words`);
         const data = await response.json();
         
         if (data.success) {
@@ -136,7 +118,6 @@ async function loadPendingWords() {
             <div class="empty-state">
                 <div class="empty-icon">🔌</div>
                 <h3>Sunucu bağlantı hatası</h3>
-                <p>Backend çalışıyor mu kontrol edin</p>
             </div>
         `;
     }
@@ -171,10 +152,10 @@ function displayPendingWords(words) {
     `).join('');
 }
 
-// GERÇEK: Backend'den onay bekleyen cümleleri çek
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function loadPendingSentences() {
     try {
-        const response = await fetch('http://localhost:5000/api/admin/pending-words');
+        const response = await fetch(`${API_BASE_URL}/api/admin/pending-sentences`);
         const data = await response.json();
         
         if (data.success) {
@@ -211,34 +192,32 @@ function displayPendingSentences(sentences) {
         return;
     }
     
-    pendingSentencesList.innerHTML = sentences.map(word => `
+    pendingSentencesList.innerHTML = sentences.map(sentence => `
         <div class="admin-item">
             <div class="item-info">
-                <span class="lang-badge">${getLanguageFlag(word.language)} ${word.language.toUpperCase()}</span>
-                <strong>Kelime:</strong> ${word.word}
+                <span class="lang-badge">${getLanguageFlag(sentence.language)} ${sentence.language.toUpperCase()}</span>
+                <strong>Kelime:</strong> ${sentence.word}
                 <br>
-                <strong>Cümle:</strong> "${word.sentence}"
+                <strong>Cümle:</strong> "${sentence.sentence}"
                 <br>
-                <small>Ekleyen: ${word.studentName} • ${formatTime(word.createdAt)}</small>
+                <small>Ekleyen: ${sentence.studentName} • ${formatTime(sentence.createdAt)}</small>
             </div>
             <div class="item-actions">
-                <button class="btn-approve" onclick="approveSentence('${word._id}')">✅ Onayla</button>
-                <button class="btn-reject" onclick="rejectSentence('${word._id}')">❌ Reddet</button>
+                <button class="btn-approve" onclick="approveSentence('${sentence._id}')">✅ Onayla</button>
+                <button class="btn-reject" onclick="rejectSentence('${sentence._id}')">❌ Reddet</button>
             </div>
         </div>
     `).join('');
 }
 
-// GERÇEK: Backend'e kelime onaylama isteği gönder
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function approveWord(wordId) {
     if(!confirm('Bu kelimeyi onaylamak istediğinize emin misiniz?\nÖğrenciye +10 puan verilecek.')) return;
     
     try {
-        const response = await fetch('http://localhost:5000/api/admin/word-action', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/word-action`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 wordId: wordId,
                 action: 'approve',
@@ -250,26 +229,24 @@ async function approveWord(wordId) {
         
         if (data.success) {
             alert('✅ ' + data.message);
-            await loadPendingWords(); // Listeyi yenile
+            await loadPendingWords();
         } else {
             alert('❌ ' + data.message);
         }
     } catch (error) {
-        alert('❌ Sunucu hatası! Backend çalışıyor mu?');
+        alert('❌ Sunucu hatası!');
     }
 }
 
-// GERÇEK: Backend'e kelime reddetme isteği gönder
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function rejectWord(wordId) {
     const reason = prompt('Reddetme sebebini yazın:');
     if (!reason) return;
     
     try {
-        const response = await fetch('http://localhost:5000/api/admin/word-action', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/word-action`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 wordId: wordId,
                 action: 'reject',
@@ -281,7 +258,7 @@ async function rejectWord(wordId) {
         
         if (data.success) {
             alert('❌ ' + data.message);
-            await loadPendingWords(); // Listeyi yenile
+            await loadPendingWords();
         } else {
             alert('❌ ' + data.message);
         }
@@ -290,18 +267,16 @@ async function rejectWord(wordId) {
     }
 }
 
-// GERÇEK: Backend'e cümle onaylama isteği gönder
-async function approveSentence(wordId) {
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
+async function approveSentence(sentenceId) {
     if(!confirm('Bu cümleyi onaylamak istediğinize emin misiniz?')) return;
     
     try {
-        const response = await fetch('http://localhost:5000/api/admin/sentence-action', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/sentence-action`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
-                wordId: wordId,
+                sentenceId: sentenceId,
                 action: 'approve',
                 adminId: currentUser.studentId 
             })
@@ -311,7 +286,7 @@ async function approveSentence(wordId) {
         
         if (data.success) {
             alert('✅ ' + data.message);
-            await loadPendingSentences(); // Listeyi yenile
+            await loadPendingSentences();
         } else {
             alert('❌ ' + data.message);
         }
@@ -320,19 +295,17 @@ async function approveSentence(wordId) {
     }
 }
 
-// GERÇEK: Backend'e cümle reddetme isteği gönder
-async function rejectSentence(wordId) {
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
+async function rejectSentence(sentenceId) {
     const reason = prompt('Reddetme sebebini yazın:');
     if (!reason) return;
     
     try {
-        const response = await fetch('http://localhost:5000/api/admin/sentence-action', {
+        const response = await fetch(`${API_BASE_URL}/api/admin/sentence-action`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
-                wordId: wordId,
+                sentenceId: sentenceId,
                 action: 'reject',
                 adminId: currentUser.studentId 
             })
@@ -342,7 +315,7 @@ async function rejectSentence(wordId) {
         
         if (data.success) {
             alert('❌ ' + data.message);
-            await loadPendingSentences(); // Listeyi yenile
+            await loadPendingSentences();
         } else {
             alert('❌ ' + data.message);
         }
@@ -368,7 +341,7 @@ function formatTime(dateString) {
     return date.toLocaleDateString('tr-TR');
 }
 
-// Login form işleyici
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -377,11 +350,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const messageDiv = document.getElementById('message');
     
     try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ studentId, password })
         });
         
@@ -407,7 +378,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }
 });
 
-// Şifre değiştirme form işleyici
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -426,11 +397,9 @@ document.getElementById('changePasswordForm').addEventListener('submit', async f
     }
     
     try {
-        const response = await fetch('http://localhost:5000/api/auth/change-password', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 studentId: currentUser.studentId, 
                 newPassword: newPassword 
@@ -454,7 +423,7 @@ document.getElementById('changePasswordForm').addEventListener('submit', async f
     }
 });
 
-// Kelime ekleme form işleyici
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 document.getElementById('wordAddForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -465,11 +434,9 @@ document.getElementById('wordAddForm').addEventListener('submit', async function
                     document.getElementById('wordAddTitle').textContent.includes('İngilizce') ? 'english' : 'arabic';
     
     try {
-        const response = await fetch('http://localhost:5000/api/words/add', {
+        const response = await fetch(`${API_BASE_URL}/api/words/add`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 word, 
                 meaning, 
@@ -482,11 +449,8 @@ document.getElementById('wordAddForm').addEventListener('submit', async function
         
         if (data.success) {
             messageDiv.innerHTML = '<div class="message success">✅ ' + data.message + '</div>';
-            
-            // Formu temizle
             document.getElementById('wordAddForm').reset();
             
-            // 2 saniye sonra profil sayfasına dön
             setTimeout(() => {
                 showProfilePage();
             }, 2000);
@@ -498,7 +462,7 @@ document.getElementById('wordAddForm').addEventListener('submit', async function
     }
 });
 
-// CÜMLE EKLEME FORM İŞLEYİCİSİ - GÜNCELLENDİ
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 document.getElementById('sentenceForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -506,16 +470,14 @@ document.getElementById('sentenceForm').addEventListener('submit', async functio
     const messageDiv = document.getElementById('sentenceMessage');
     
     try {
-        const response = await fetch('http://localhost:5000/api/words/add-sentence', {
+        const response = await fetch(`${API_BASE_URL}/api/words/add-sentence`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 wordId: currentEditingWordId, 
                 sentence, 
                 studentId: currentUser.studentId,
-                sentenceLanguage: selectedSentenceLanguage // YENİ: DİL BİLGİSİ EKLENDİ
+                sentenceLanguage: selectedSentenceLanguage
             })
         });
         
@@ -523,11 +485,8 @@ document.getElementById('sentenceForm').addEventListener('submit', async functio
         
         if (data.success) {
             messageDiv.innerHTML = '<div class="message success">✅ ' + data.message + '</div>';
-            
-            // Kelime listesini güncelle
             await loadAllWords();
             
-            // 2 saniye sonra modal'ı kapat
             setTimeout(() => {
                 closeSentenceModal();
             }, 2000);
@@ -547,7 +506,6 @@ function showProfilePage() {
         document.getElementById('profileStudentId').textContent = currentUser.studentId;
         document.getElementById('profilePoints').textContent = currentUser.points;
         
-        // Admin ise admin butonunu göster
         const adminBtn = document.getElementById('adminBtn');
         if (adminBtn) {
             adminBtn.style.display = currentUser.role === 'admin' ? 'block' : 'none';
@@ -580,10 +538,10 @@ async function showAllWordsPage() {
     }
 }
 
-// Tüm kelimeleri yükle
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function loadAllWords() {
     try {
-        const response = await fetch('http://localhost:5000/api/words/all');
+        const response = await fetch(`${API_BASE_URL}/api/words/all`);
         const data = await response.json();
         
         if (data.success) {
@@ -614,12 +572,10 @@ function renderWords() {
     }
     
     wordsGrid.innerHTML = allWords.map(word => {
-        // Kullanıcının bu kelimeye oy verip vermediğini kontrol et
         const userVote = word.votedUsers ? word.votedUsers.find(vote => vote.studentId === currentUser.studentId) : null;
         const hasUserVoted = !!userVote;
         const userVoteType = userVote ? userVote.voteType : null;
         
-        // Cümle durumunu kontrol et
         const canAddSentence = !word.sentence || word.sentenceStatus === 'pending';
         const hasApprovedSentence = word.sentence && word.sentenceStatus === 'approved';
         
@@ -676,12 +632,12 @@ function renderWords() {
     }).join('');
 }
 
-// Kelime arama
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function searchWords() {
     const searchTerm = document.getElementById('searchWordsInput').value;
     
     try {
-        const response = await fetch(`http://localhost:5000/api/words/search?q=${encodeURIComponent(searchTerm)}`);
+        const response = await fetch(`${API_BASE_URL}/api/words/search?q=${encodeURIComponent(searchTerm)}`);
         const data = await response.json();
         
         if (data.success) {
@@ -693,14 +649,12 @@ async function searchWords() {
     }
 }
 
-// Like/Dislike işlemi
+// 🔥 BACKEND URL'LERİ GÜNCELLENDİ
 async function voteWord(wordId, type) {
     try {
-        const response = await fetch('http://localhost:5000/api/words/vote', {
+        const response = await fetch(`${API_BASE_URL}/api/words/vote`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ 
                 wordId, 
                 type, 
@@ -716,10 +670,7 @@ async function voteWord(wordId, type) {
                 updatePointsDisplay();
             }
             
-            // Kelime listesini güncelle
             await loadAllWords();
-            
-            // Başarı mesajı
             showTempMessage(data.message, 'success');
         } else {
             showTempMessage(data.message, 'error');
