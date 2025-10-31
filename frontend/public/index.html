@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WordMaster - Öğrenci Kelime Platformu</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Dil Seçimi Stilleri */
+        .language-selection {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .language-options {
+            display: flex;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .lang-option {
+            flex: 1;
+            padding: 12px 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .lang-option:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+
+        .lang-option.active {
+            border-color: #2ecc71;
+            background: #2ecc71;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3);
+        }
+
+        .points-preview {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 500;
+            color: #27ae60;
+        }
+
+        /* Modal içi responsive düzen */
+        @media (max-width: 768px) {
+            .language-options {
+                flex-direction: column;
+            }
+            
+            .lang-option {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Login Ekranı -->
+        <div id="loginPage" class="page active">
+            <div class="login-container">
+                <div class="logo">
+                    <div class="logo-icon">📚</div>
+                    <h1>WordMaster</h1>
+                    <p>Kelime Öğrenme Platformu</p>
+                </div>
+                
+                <form id="loginForm" class="auth-form">
+                    <div class="input-group">
+                        <div class="input-icon">🎓</div>
+                        <input type="text" id="studentId" placeholder="Öğrenci Numaranız" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" id="password" placeholder="Şifreniz" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span class="btn-icon">🚀</span>
+                        Giriş Yap
+                    </button>
+                </form>
+                
+                <div id="message" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Şifre Değiştirme -->
+        <div id="changePasswordPage" class="page">
+            <div class="login-container">
+                <div class="logo">
+                    <div class="logo-icon">🔐</div>
+                    <h2>Şifre Değiştir</h2>
+                    <p>İlk girişte şifrenizi güncelleyin</p>
+                </div>
+                
+                <form id="changePasswordForm" class="auth-form">
+                    <div class="input-group">
+                        <div class="input-icon">🆕</div>
+                        <input type="password" id="newPassword" placeholder="Yeni Şifre (min 6 karakter)" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-icon">🔁</div>
+                        <input type="password" id="confirmPassword" placeholder="Şifre Tekrar" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span class="btn-icon">💾</span>
+                        Şifreyi Kaydet
+                    </button>
+                </form>
+                
+                <div id="passwordMessage" class="message"></div>
+            </div>
+        </div>
+
+        <!-- Ana Profil -->
+        <div id="profilePage" class="page">
+            <div class="container">
+                <header class="app-header">
+                    <div class="header-content">
+                        <h1>WordMaster</h1>
+                        <div class="user-menu">
+                            <span class="user-points">🏆 <span id="profilePoints">0</span> puan</span>
+                            <button class="btn-logout" onclick="logout()">Çıkış</button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="profile-card">
+                    <div class="profile-avatar">👤</div>
+                    <div class="profile-info">
+                        <h2 id="profileName">Ahmet Yılmaz</h2>
+                        <div class="profile-meta">
+                            <span class="meta-item">🎒 <span id="profileClass">10-A</span></span>
+                            <span class="meta-item">🔢 <span id="profileStudentId">2024001</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-grid">
+                    <div class="action-card" onclick="showWordAddPage('turkish')">
+                        <div class="action-icon">🇹🇷</div>
+                        <h3>Türkçe Kelime</h3>
+                        <p>Yeni kelime ekle</p>
+                        <div class="action-badge">+10 puan</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="showWordAddPage('english')">
+                        <div class="action-icon">🇺🇸</div>
+                        <h3>İngilizce Kelime</h3>
+                        <p>Yeni kelime ekle</p>
+                        <div class="action-badge">+10 puan</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="showWordAddPage('arabic')">
+                        <div class="action-icon">🇸🇦</div>
+                        <h3>Arapça Kelime</h3>
+                        <p>Yeni kelime ekle</p>
+                        <div class="action-badge">+10 puan</div>
+                    </div>
+                    
+                    <div class="action-card" onclick="showAllWordsPage()">
+                        <div class="action-icon">📚</div>
+                        <h3>Tüm Kelimeler</h3>
+                        <p>Kelimeleri keşfet & oyla</p>
+                        <div class="action-badge">+1 puan/oy</div>
+                    </div>
+
+                    <!-- Admin Butonu (Sadece adminler görecek) -->
+                    <div class="action-card admin-btn" id="adminBtn" onclick="showAdminPage()" style="display: none;">
+                        <div class="action-icon">⚙️</div>
+                        <h3>Yönetici Paneli</h3>
+                        <p>Kelimeleri ve cümleleri onayla</p>
+                        <div class="action-badge">Admin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kelime Ekleme -->
+        <div id="wordAddPage" class="page">
+            <div class="container">
+                <header class="app-header">
+                    <button class="btn-back" onclick="showProfilePage()">← Geri</button>
+                    <h1 id="wordAddTitle">🇹🇷 Türkçe Kelime Ekle</h1>
+                    <div class="header-placeholder"></div>
+                </header>
+
+                <div class="form-card">
+                    <form id="wordAddForm">
+                        <div class="input-group">
+                            <label>📝 Kelime</label>
+                            <input type="text" id="wordInput" placeholder="Kelimeyi yazın..." required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>📖 Anlamı</label>
+                            <textarea id="wordMeaning" placeholder="Kelimenin anlamını açıklayın..." rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="form-footer">
+                            <div class="points-info">✅ Admin onayından sonra +10 puan</div>
+                            <button type="submit" class="btn-primary">
+                                <span class="btn-icon">📤</span>
+                                Kelimeyi Gönder
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="wordMessage" class="message"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TÜM KELİMELER SAYFASI -->
+        <div id="allWordsPage" class="page">
+            <div class="container">
+                <header class="app-header">
+                    <button class="btn-back" onclick="showProfilePage()">← Geri</button>
+                    <h1>📚 Tüm Kelimeler</h1>
+                    <div class="user-menu">
+                        <span class="user-points">🏆 <span id="allWordsPoints">0</span> puan</span>
+                    </div>
+                </header>
+
+                <div class="search-section">
+                    <div class="search-box">
+                        <div class="search-icon">🔍</div>
+                        <input type="text" id="searchWordsInput" placeholder="Kelimelerde ara... (örn: 'a' yazın)" onkeyup="searchWords()">
+                        <div class="search-stats">
+                            <span id="wordsCount">0</span> kelime
+                        </div>
+                    </div>
+                </div>
+
+                <div class="words-grid" id="wordsGrid">
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <h3>Henüz kelime eklenmemiş</h3>
+                        <p>İlk kelimeyi eklemek için yukarıdaki butonları kullanın</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- YÖNETİCİ PANELİ -->
+        <div id="adminPage" class="page">
+            <div class="container">
+                <header class="app-header">
+                    <button class="btn-back" onclick="showProfilePage()">← Geri</button>
+                    <h1>⚙️ Yönetici Paneli</h1>
+                    <div class="user-menu">
+                        <span class="user-points">👤 <span id="adminName">Admin</span></span>
+                    </div>
+                </header>
+
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="showAdminTab('words')">📝 Kelimeler</button>
+                    <button class="tab-btn" onclick="showAdminTab('sentences')">💬 Cümleler</button>
+                </div>
+
+                <!-- Onay Bekleyen Kelimeler -->
+                <div id="adminWordsTab" class="admin-tab active">
+                    <h2>⏳ Onay Bekleyen Kelimeler</h2>
+                    <div id="pendingWordsList" class="admin-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <h3>Onay bekleyen kelime yok</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onay Bekleyen Cümleler -->
+                <div id="adminSentencesTab" class="admin-tab">
+                    <h2>⏳ Onay Bekleyen Cümleler</h2>
+                    <div id="pendingSentencesList" class="admin-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <h3>Onay bekleyen cümle yok</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CÜMLE EKLEME MODAL - YENİLENMİŞ -->
+        <div id="sentenceModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>💬 Cümle Ekle</h2>
+                    <button class="modal-close" onclick="closeSentenceModal()">×</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="word-info-modal">
+                        <h4>Kelime: <span id="modalWordName">-</span></h4>
+                        <p class="word-meaning-modal">Anlamı: <span id="modalWordMeaning">-</span></p>
+                    </div>
+                    
+                    <!-- DİL SEÇİMİ EKLENDİ -->
+                    <div class="language-selection">
+                        <label><strong>🌍 Cümle Dili Seçin:</strong></label>
+                        <div class="language-options">
+                            <button type="button" class="lang-option active" data-lang="turkish" data-points="5">
+                                🇹🇷 Türkçe
+                            </button>
+                            <button type="button" class="lang-option" data-lang="english" data-points="7">
+                                🇺🇸 İngilizce
+                            </button>
+                            <button type="button" class="lang-option" data-lang="arabic" data-points="10">
+                                🇸🇦 Arapça
+                            </button>
+                        </div>
+                        <div class="points-preview">
+                            <small>Seçili dil: <span id="selectedLangName">Türkçe</span> • <span id="selectedPoints">5</span> puan</small>
+                        </div>
+                    </div>
+                    
+                    <form id="sentenceForm">
+                        <div class="input-group">
+                            <label>📝 Örnek Cümle</label>
+                            <textarea id="sentenceInput" placeholder="Bu kelime ile örnek bir cümle yazın..." rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-footer">
+                            <!-- PUAN BİLGİSİ DİNAMİK OLACAK -->
+                            <div class="points-info">✅ Admin onayından sonra <span id="sentencePoints">5</span> puan</div>
+                            <button type="submit" class="btn-primary">
+                                <span class="btn-icon">📝</span>
+                                Cümleyi Gönder
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="sentenceMessage" class="message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

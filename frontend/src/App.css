@@ -1,0 +1,211 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  -webkit-user-select: text; /* Safari */
+  -moz-user-select: text; /* Firefox */
+  -ms-user-select: text; /* Internet Explorer/Edge */
+  user-select: text; /* Non-prefixed version */
+}
+
+.App {
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 50px 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-header {
+  margin-bottom: 40px;
+}
+
+.login-header h2 {
+  color: #2d3748;
+  margin-bottom: 10px;
+  font-size: 32px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-header p {
+  color: #718096;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 25px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #f7fafc;
+  color: #2d3748;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.login-container input:focus {
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.login-container input:not(:placeholder-shown) {
+  background: white;
+  border-color: #cbd5e0;
+}
+
+.login-container input:disabled {
+  background-color: #edf2f7;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Input içindeki yazı için özel stiller */
+.login-container input[type="text"],
+.login-container input[type="password"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  caret-color: #667eea;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.login-container button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(102, 126, 234, 0.3);
+}
+
+.login-container button:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.login-container button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.message {
+  margin-top: 25px;
+  padding: 16px;
+  border-radius: 12px;
+  font-weight: 500;
+  text-align: center;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.message.success {
+  background-color: #f0fff4;
+  color: #2f855a;
+  border-color: #9ae6b4;
+}
+
+.message.error {
+  background-color: #fed7d7;
+  color: #c53030;
+  border-color: #fc8181;
+}
+
+.login-footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.login-footer p {
+  color: #718096;
+  font-size: 14px;
+}
+
+.login-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile touch improvements */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 40px 25px;
+    margin: 10px;
+  }
+  
+  .login-header h2 {
+    font-size: 28px;
+  }
+  
+  .login-container input {
+    padding: 18px 16px;
+    font-size: 16px;
+  }
+}
+
+/* Internet Explorer için fix */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .login-container input {
+    background: white;
+  }
+}
